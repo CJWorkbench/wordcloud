@@ -180,71 +180,11 @@
         })
       }
 
-      function areXAxisLabelsOverlapping () {
-        // Assumptions:
-        //
-        // x-axis ticks have height 3
-        // texts are arranged from left to right
-
-        let xAxis = null
-        const axisTicks = document.querySelectorAll('g.role-axis-tick')
-        if (!axisTicks.length) return // we're displaying a message, not a chart
-        for (let i = 0; i < axisTicks.length; i++) {
-          if (axisTicks[i].getBoundingClientRect().height === 3) {
-            xAxis = axisTicks[i].parentNode
-            break
-          }
-        }
-
-        if (xAxis === null) {
-          console.warn('Could not find x axis because of invalid assumptions')
-          return
-        }
-
-        const labels = xAxis.querySelectorAll('.role-axis-label text')
-        const margin = 3
-        let maxX = -Infinity
-        for (let i = 0; i < labels.length; i++) {
-          const label = labels[i]
-          if (label.style.opacity == 0) { // may be str "0"
-            // Hidden label? That means Vega hid it, so we can assume Vega will
-            // prevent any overlaps. Skip the algorithm.
-            return false
-          }
-          const rect = label.getBoundingClientRect()
-          const left = rect.left
-          if (maxX + margin > left) {
-            return true
-          }
-          maxX = rect.right
-        }
-        return false
-      }
-
-      function slantXAxisLabelsIfNeeded ({ spec, view }) {
-        if (areXAxisLabelsOverlapping()) {
-          const newSpec = JSON.parse(JSON.stringify(spec))
-          const xAxis = newSpec.encoding.x.axis
-          Object.assign(xAxis, {
-            labelAlign: 'right',
-            labelBaseline: 'middle',
-            labelAngle: -45,
-            tickSize: 5
-          })
-          renderSpec(newSpec)
-        }
-      }
-
       function reRender () {
         renderSpec(lastSpec)
-          .then(slantXAxisLabelsIfNeeded)
       }
 
       function onResize () {
-        // Ignore the spec we rendered last time, because it may use slanted
-        // X-axis labels and we may have resized such that we don't need them.
-        // Re-render the canonical chart, and then re-slant the X-axis labels
-        // if need be.
         reRender()
       }
 
