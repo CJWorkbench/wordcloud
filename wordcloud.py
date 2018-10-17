@@ -1,12 +1,13 @@
-from collections import Counter
 import re
 from typing import Any, Dict, List, Optional, Tuple
-from nltk.tokenize.casual import casual_tokenize
+import nltk.corpus
 from nltk.stem.snowball import EnglishStemmer
+from nltk.tokenize.casual import casual_tokenize
 import pandas as pd
 
 
 HAS_ALNUM = re.compile('\w')
+stopwords = set(nltk.corpus.stopwords.words('english'))
 
 
 class GentleValueError(ValueError):
@@ -47,10 +48,13 @@ def most_common_tokens(tokens: List[str],
     Uses EnglishStemmer to stem tokens. Selects the most-common token per stem
     for output.
     """
-    stemmer = EnglishStemmer(ignore_stopwords=True)
+    stemmer = EnglishStemmer()
 
     stems = {}  # dict of { stem => group }
     for token in tokens:
+        if token in stopwords:
+            continue  # nix stopword
+
         stem = stemmer.stem(token)
 
         if not stem or not HAS_ALNUM.search(stem):
