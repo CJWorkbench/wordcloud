@@ -1,8 +1,12 @@
 from collections import Counter
+import re
 from typing import Any, Dict, List, Optional, Tuple
 from nltk.tokenize.casual import casual_tokenize
 from nltk.stem.snowball import EnglishStemmer
 import pandas as pd
+
+
+HAS_ALNUM = re.compile('\w')
 
 
 class GentleValueError(ValueError):
@@ -35,23 +39,53 @@ def str_to_tokens(s: str) -> List[str]:
     return casual_tokenize(s, preserve_case=False)
 
 
-def stem_tokens(tokens: List[str]) -> List[str]:
-    """
-    Stem tokens.
-    """
-    stemmer = EnglishStemmer(ignore_stopwords=True)
-    stemmed = [stemmer.stem(token) for token in tokens]
-    nonempty = [s for s in stemmed if s]
-    return nonempty
-
-
 def most_common_tokens(tokens: List[str],
                        max_n_tokens=100) -> List[Tuple[str, int]]:
     """
     Build `(token, count)` pairs for the most frequent tokens in `tokens`.
+
+    Uses EnglishStemmer to stem tokens. Selects the most-common token per stem
+    for output.
     """
-    counter = Counter(tokens)
-    return counter.most_common(max_n_tokens)
+    stemmer = EnglishStemmer(ignore_stopwords=True)
+
+    stems = {}  # dict of { stem => group }
+    for token in tokens:
+        stem = stemmer.stem(token)
+
+        if not stem or not HAS_ALNUM.search(stem):
+            continue  # stopword or punctuation
+
+        # 1. Find our "group". All tokens that stem to the same string form
+        # a "group".
+        if stem in stems:
+            group = stems[stem]
+        else:
+            group = ([], [])
+            stems[stem] = group
+
+        # 2. Add this token to the group. We want to track which token is
+        # most popular in the group, because that's the one we're going to
+        # display in the end.
+        #
+        # We use lists instead of a hash: list is faster for small counts.
+        stem_tokens, stem_counts = group
+        try:
+            index = stem_tokens.index(token)
+            stem_counts[index] += 1
+        except ValueError:
+            stem_tokens.append(token)
+            stem_counts.append(1)
+
+    counted_tokens = []  # list of (token, count)
+    for stem, group in stems.items():
+        stem_tokens, stem_counts = group
+        best_index = stem_counts.index(max(stem_counts))
+        best_token = stem_tokens[best_index]
+        counted_tokens.append((best_token, sum(stem_counts)))
+    counted_tokens.sort(key=lambda tup: tup[1], reverse=True)
+
+    return counted_tokens[:max_n_tokens]
 
 
 class Form:
@@ -65,8 +99,7 @@ class Form:
         series = table[self.column]
         text = series_to_str(series)
         tokens = str_to_tokens(text)
-        stemmed_tokens = stem_tokens(tokens)
-        common_tokens = most_common_tokens(stemmed_tokens)
+        common_tokens = most_common_tokens(tokens)
         return Chart(common_tokens)
 
     @staticmethod
@@ -105,7 +138,9 @@ class Chart:
                             'type': 'wordcloud',
                             'text': {'field': 'text'},
                             'fontSize': {'field': 'n'},
-                            'font': 'Helvetica Neue, Helvetica, Arial',
+                            'font': (
+                                'Nunito Sans, Helvetica Neue, Helvetica, Arial'
+                            ),
                             'fontSizeRange': [10, 56],
                             'rotate': 0
                         },
