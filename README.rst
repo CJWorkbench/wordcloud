@@ -8,8 +8,8 @@ Features
 
 * Tokenizes with `NLTK https://www.nltk.org/>`_ "casual" algorithm, converting
   to lowercase.
-* Stems with ``nltk.stem.snowball.EnglishStemmer``.
-* Ignores English stopwords while stemming.
+* Removes English stopwords and punctuation.
+* Does not stem: that's too slow on big datasets.
 
 Developing
 ----------
