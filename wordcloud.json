@@ -2,7 +2,7 @@
   "name": "Word cloud",
   "id_name": "wordcloud",
   "category" : "Visualize",
-  "icon" : "world-cloud",
+  "icon" : "word-cloud",
   "html_output": true,
   "description" : "Show most-common words in a text column",
   "help_url":"modules/clean/wordcloud",
