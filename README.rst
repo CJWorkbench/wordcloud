@@ -32,3 +32,9 @@ To develop continuously on Workbench:
 #. Start Workbench with ``CACHE_MODULES=false bin/dev start``
 #. In a separate tab in the Workbench directory, run ``bin/dev develop-module wordcloud``
 #. Edit this code; the module will be reloaded in Workbench immediately
+
+To change the regex:
+
+#. Edit ``generate-py.rb``
+#. Run it, to write to ``token_regex.txt``
+#. Copy/paste from ``token_regex.txt`` into the appropriate spot in ``wordcloud.py``.

@@ -1,13 +1,14 @@
 from collections import Counter
-import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 import nltk.corpus
-from nltk.tokenize.casual import casual_tokenize
 import pandas as pd
+import re2
 
+# TOKEN is copy/pasted from token_regex.txt
+TOKEN = re2.compile('''(?:(?:https?:\\/\\/)?(?:(?:(?:[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000](?:[_-]|[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])*)?[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]\\.)+(?:(?:[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000](?:[-]|[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])*)?[^!\"\#$%&'()*+,-./:;<=>?@\\[\\]^_`{|}~ \t\n\v\f\r\u0000-\u001F\u007F\uFFFE\ufeff\uFFFF\u202a-\u202e\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000])(?:(?:\\.xn--[0-9a-z]+))?)(?::([0-9]+))?(?:\\/(?:(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*(?:(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]+|(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*\\([a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]+\\)[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*))[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*)*[a-zA-Z\\p{Cyrillic}0-9=_#\\/\\+\\-\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]|(?:(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]+|(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*\\([a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]+\\)[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]*))))|(?:[a-zA-Z\\p{Cyrillic}0-9!\\*';:=\\+\\,\\.\\$\\/%#\\[\\]\\-_~&\\|@\u00c0-\u00d6\u00d8-\u00f6\u00f8-\u00ff\u0100-\u024f\u0253-\u0254\u0256-\u0257\u0259\u025b\u0263\u0268\u026f\u0272\u0289\u028b\u02bb\u0300-\u036f\u1e00-\u1eff]+\\/))*)?(?:\\?[a-zA-Z0-9!?\\*'\\(\\);:&=\\+\\$\\/%#\\[\\]\\-_\\.,~|@]*[a-zA-Z0-9_&=#\\/\\-])?)|(?:[<>]?[:;=8][\\-o\\*\\']?[\\)\\]\\(\\[dDpPS\\/\\:\\}\\{@\\|\\\\]|[\\)\\]\\(\\[dDpPS\\/\\:\\}\\{@\\|\\\\][\\-o\\*\\']?[:;=8][<>]?|<3)|(?:-+>|<-+)|(?:[@\uff20][a-zA-Z0-9_]+(?:\\/[a-zA-Z][a-zA-Z0-9_\\-]*)?)|(?:[#\uff03][\\p{L}\\p{M}\\p{Nd}_\u200c\u200d\ua67e\u05be\u05f3\u05f4\uff5e\u301c\u309b\u309c\u30a0\u30fb\u3003\u0f0b\u0f0c\u00b7]+)|(?:(?:[\\pL]+['\\-_]+)+[\\pL]+)|(?:[+\\-]?[\\pN]+([,\\/.:\\-][\\pN]+)*[+\\-]?)|(?:[\\pL\\pN_]+)|(?:[^\t-\r \u0085\u00a0\u1680\u180e\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\\pL\\pN]+)''')
 
-HAS_ALNUM = re.compile('\w')
 stopwords = set(nltk.corpus.stopwords.words('english'))
+USEFUL_CHAR = re2.compile('\\pL|\\pN')
 
 
 class GentleValueError(ValueError):
@@ -22,7 +23,7 @@ class GentleValueError(ValueError):
         super().__init__(*args, **kwargs)
 
 
-def series_to_str(series: pd.Series) -> str:
+def series_to_text(series: pd.Series) -> str:
     """
     Build a str with text contents of `series`, newline-separated.
 
@@ -33,19 +34,26 @@ def series_to_str(series: pd.Series) -> str:
     return series.dropna().astype(str).str.cat(sep='\n')
 
 
-def str_to_tokens(s: str) -> List[str]:
+def text_to_tokens(text: str) -> Iterable[str]:
     """
-    Tokenize the input string.
+    Tokenize the input string, returning non-stopword tokens.
     """
-    return casual_tokenize(s, preserve_case=False)
+    text = text.lower()
+
+    pos = 0
+    while True:
+        match = TOKEN.search(text, pos)
+        if match is None:
+            break
+
+        token = match.group(0)
+        pos = match.end()
+
+        if token not in stopwords and USEFUL_CHAR.search(token):
+            yield token
 
 
-def is_token_wanted(token: str) -> bool:
-    """Return `False` for punctuation and stopwords."""
-    return HAS_ALNUM.search(token) and token not in stopwords
-
-
-def most_common_tokens(tokens: List[str],
+def most_common_tokens(tokens: Iterable[str],
                        max_n_tokens=100) -> List[Tuple[str, int]]:
     """
     Build `(token, count)` pairs for the most frequent tokens in `tokens`.
@@ -63,9 +71,9 @@ class Form:
 
     def to_chart(self, table):
         series = table[self.column]
-        text = series_to_str(series)
-        tokens = str_to_tokens(text)
-        good_tokens = [t for t in tokens if is_token_wanted(t)]
+        text = series_to_text(series)
+        tokens = text_to_tokens(text)
+        good_tokens = (t for t in tokens if t not in stopwords)
         common_tokens = most_common_tokens(good_tokens)
 
         if not common_tokens:
