@@ -160,4 +160,4 @@ end
 
 puts "Writing to token_regex.txt: #{quote(TOKEN)}"
 
-open('token_regex.txt', 'w') { |f| f.write("TOKEN = re2.compile('''#{quote(TOKEN)}''')") }
+open('token_regex.txt', 'w') { |f| f.write("TOKEN = re2.compile(b'''#{quote(TOKEN)}''')") }

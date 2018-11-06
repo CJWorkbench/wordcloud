@@ -7,22 +7,26 @@ from wordcloud import text_to_tokens, most_common_tokens, render
 class WordcloudTest(unittest.TestCase):
     def test_text_to_tokens(self):
         self.assertEqual(list(text_to_tokens("@adamhooper hi, I'm Bob!")),
-                         ['@adamhooper', 'hi', "i'm", 'bob'])
+                         [b'@adamhooper', b'hi', b"i'm", b'bob'])
+
+    def test_utf8(self):
+        self.assertEqual(list(text_to_tokens('café latté')),
+                         ['café'.encode('utf-8'), 'latté'.encode('utf-8')])
 
     def test_allow_embedded_punctuation(self):
         self.assertEqual(list(text_to_tokens("@adamhooper I'm")),
-                         ['@adamhooper', "i'm"])
+                         [b'@adamhooper', b"i'm"])
 
     def test_allow_numbers(self):
         self.assertEqual(list(text_to_tokens(' 3 1,234.56 ')),
-                         ['3', '1,234.56'])
+                         [b'3', b'1,234.56'])
 
     def test_nix_stopwords(self):
         self.assertEqual(list(text_to_tokens('i, the ketchup')),
-                         ['ketchup'])
+                         [b'ketchup'])
 
     def test_most_common_tokens(self):
-        tokens = ['@adamhooper', 'hi', 'hi', 'bob', '@adamhooper', 'hi']
+        tokens = [b'@adamhooper', b'hi', b'hi', b'bob', b'@adamhooper', b'hi']
         expected = [
             ('hi', 3),
             ('@adamhooper', 2),
@@ -31,7 +35,7 @@ class WordcloudTest(unittest.TestCase):
         self.assertEqual(most_common_tokens(tokens), expected)
 
     def test_most_common_tokens_limit(self):
-        tokens = ['@adamhooper', 'hi', 'hi', 'bob', '@adamhooper', 'hi']
+        tokens = [b'@adamhooper', b'hi', b'hi', b'bob', b'@adamhooper', b'hi']
         expected = [
             ('hi', 3),
             ('@adamhooper', 2),
