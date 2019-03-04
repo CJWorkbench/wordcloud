@@ -4,7 +4,7 @@
   "category" : "Visualize",
   "icon" : "word-cloud",
   "html_output": true,
-  "description" : "Show most-common words in a text column",
+  "description" : "Visualize the most-common words used in a text column using a word cloud chart.",
   "help_url":"modules/clean/wordcloud",
   "parameters": [
     {
