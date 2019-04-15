@@ -9,4 +9,5 @@ parameters:
 - id_name: column
   type: column
   name: ''
+  column_types: [ text ]
   placeholder: Select text column
