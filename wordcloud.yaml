@@ -3,7 +3,7 @@ name: Word cloud
 category: Visualize
 icon: word-cloud
 html_output: true
-description: Display the most-common words in a text column using a word cloud chart.
+description: Chart words by giving greater prominence to those who appear more frequently in a text column.
 help_url: modules/clean/wordcloud
 parameters:
 - id_name: column
