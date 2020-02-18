@@ -1,0 +1,12 @@
+#. default-message: Word cloud
+msgid "_spec.name"
+msgstr ""
+
+#. default-message: Chart words by giving greater prominence to those who appear more frequently in a text column.
+msgid "_spec.description"
+msgstr ""
+
+#. default-message: Select text column
+msgid "_spec.parameters.column.placeholder"
+msgstr ""
+
