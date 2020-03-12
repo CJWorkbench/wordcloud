@@ -11,5 +11,5 @@ setup(
     url="https://github.com/CJWorkbench/wordcloud",
     packages=[""],
     py_modules=["wordcloud"],
-    install_requires=["pandas==0.25.0", "nltk==3.4.5", "fb-re2==1.0.7"],
+    install_requires=["pandas==0.25.0", "nltk==3.4.5", "fb-re2==1.0.7", "cjwmodule>=1.4.2"],
 )
