@@ -2,6 +2,7 @@ import unittest
 import pandas as pd
 from pandas.testing import assert_frame_equal
 from wordcloud import text_to_tokens, most_common_tokens, render
+from cjwmodule.testing.i18n import i18n_message
 
 
 class WordcloudTest(unittest.TestCase):
@@ -61,9 +62,8 @@ class WordcloudTest(unittest.TestCase):
         })
         result = render(table, {'column': ''})
         assert_frame_equal(result[0], table)  # dataframe
-        self.assertEqual(result[1], '')  # error
-        self.assertEqual(result[2]['error'],
-                         'Please select a text column')  # json
+        self.assertEqual(result[1], i18n_message("errors.emptyColumn"))  # error
+        self.assertTrue(result[2]['error'])  # json
 
     def test_no_text(self):
         table = pd.DataFrame({
@@ -71,6 +71,5 @@ class WordcloudTest(unittest.TestCase):
         })
         result = render(table, {'column': 'A'})
         assert_frame_equal(result[0], table)  # dataframe
-        self.assertEqual(result[1], '')  # error
-        self.assertEqual(result[2]['error'],
-                         'Column contains no words')  # json
+        self.assertEqual(result[1], i18n_message("errors.columnType"))  # error
+        self.assertTrue(result[2]['error'])  # json

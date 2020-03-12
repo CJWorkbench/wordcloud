@@ -10,3 +10,13 @@ msgstr ""
 msgid "_spec.parameters.column.placeholder"
 msgstr ""
 
+#. default-message: Column contains no words
+#: wordcloud.py:92
+msgid "errors.emptyColumn"
+msgstr ""
+
+#. default-message: Please select a text column
+#: wordcloud.py:99
+msgid "errors.columnType"
+msgstr ""
+

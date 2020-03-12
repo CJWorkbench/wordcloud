@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2020-02-18 16:15+0000\n"
+"POT-Creation-Date: 2020-03-12 10:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: el\n"
@@ -29,4 +29,12 @@ msgstr ""
 
 msgid "_spec.parameters.column.placeholder"
 msgstr "Επιλέξτε στήλη κειμένου"
+
+#: wordcloud.py:92
+msgid "errors.emptyColumn"
+msgstr ""
+
+#: wordcloud.py:99
+msgid "errors.columnType"
+msgstr ""
 

@@ -1,19 +1,17 @@
 from collections import Counter
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 import pandas as pd
+from cjwmodule.i18n import trans
 
 
 class GentleValueError(ValueError):
     """
-    A ValueError that should not display in red to the user.
-
-    On first load, we don't want to display an error, even though the user
-    hasn't selected what to plot. So we'll display the error in the iframe:
-    we'll be gentle with the user.
+    A ValueError that has an I18nMessage as its first argument.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    @property
+    def i18n_message(self):
+        return self.args[0]
 
 
 def series_to_text(series: pd.Series) -> str:
@@ -91,14 +89,14 @@ class Form:
         common_tokens = most_common_tokens(tokens)
 
         if not common_tokens:
-            raise GentleValueError("Column contains no words")
+            raise GentleValueError(trans("errors.emptyColumn", "Column contains no words"))
 
         return Chart(common_tokens)
 
     @staticmethod
     def parse(*, column: Optional[str] = None) -> "Form":
         if not column:
-            raise GentleValueError("Please select a text column")
+            raise GentleValueError(trans("errors.columnType", "Please select a text column"))
 
         return Form(column)
 
@@ -168,7 +166,11 @@ def render(table, params):
         form = Form.parse(**params)
         chart = form.to_chart(table)
     except GentleValueError as err:
-        return (table, "", {"error": str(err)})
+        return (
+            table, 
+            err.i18n_message, 
+            {"error": "Please correct the error in this step's data or parameters"} # TODO_i18n
+        )
 
     json_dict = chart.to_vega()
     return (table, "", json_dict)
