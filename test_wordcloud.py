@@ -62,7 +62,7 @@ class WordcloudTest(unittest.TestCase):
         })
         result = render(table, {'column': ''})
         assert_frame_equal(result[0], table)  # dataframe
-        self.assertEqual(result[1], i18n_message("errors.columnType"))  # error
+        self.assertEqual(result[1], i18n_message("errors.noColumn"))  # error
         self.assertTrue(result[2]['error'])  # json
 
     def test_no_text(self):

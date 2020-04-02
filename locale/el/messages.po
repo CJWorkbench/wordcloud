@@ -35,6 +35,6 @@ msgid "errors.emptyColumn"
 msgstr "Η στήλη δεν περιέχει λέξεις"
 
 #: wordcloud.py:99
-msgid "errors.columnType"
+msgid "errors.noColumn"
 msgstr "Επιλέξτε στήλη κειμένου"
 

@@ -96,7 +96,7 @@ class Form:
     @staticmethod
     def parse(*, column: Optional[str] = None) -> "Form":
         if not column:
-            raise GentleValueError(trans("errors.columnType", "Please select a text column"))
+            raise GentleValueError(trans("errors.noColumn", "Please select a text column"))
 
         return Form(column)
 

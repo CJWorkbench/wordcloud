@@ -17,6 +17,6 @@ msgstr ""
 
 #. default-message: Please select a text column
 #: wordcloud.py:99
-msgid "errors.columnType"
+msgid "errors.noColumn"
 msgstr ""
 

@@ -35,6 +35,6 @@ msgid "errors.emptyColumn"
 msgstr "Column contains no words"
 
 #: wordcloud.py:99
-msgid "errors.columnType"
+msgid "errors.noColumn"
 msgstr "Please select a text column"
 
