@@ -122,7 +122,8 @@ class Chart:
         Build a Vega wordcloud.
         """
         return {
-            "$schema": "https://vega.github.io/schema/vega/v4.json",
+            "$schema": "https://vega.github.io/schema/vega/v5.json",
+            "padding": 0,
             "data": [
                 {
                     "name": "tokens",
@@ -132,11 +133,18 @@ class Chart:
                             "type": "wordcloud",
                             "text": {"field": "text"},
                             "fontSize": {"field": "n"},
-                            "font": ("Nunito Sans, Helvetica Neue, Helvetica, Arial"),
+                            "font": "Nunito Sans, Helvetica Neue, Helvetica, Arial",
                             "fontSizeRange": [10, 56],
                             "rotate": 0,
                         }
                     ],
+                }
+            ],
+            "scales": [
+                {
+                    "name": "color",
+                    "type": "ordinal",
+                    "range": ["#ffaad3", "#48c8d7", "#fbaa6d"],
                 }
             ],
             "marks": [
@@ -148,7 +156,7 @@ class Chart:
                             "text": {"field": "text"},
                             "align": {"value": "center"},
                             "baseline": {"value": "alphabetic"},
-                            "fill": {"value": "#333333"},
+                            "fill": {"scale": "color", "field": "text"},
                         },
                         "update": {
                             "x": {"field": "x"},
