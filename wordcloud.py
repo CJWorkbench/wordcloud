@@ -118,9 +118,7 @@ class Chart:
         return [{"text": text, "n": n} for text, n in self.tokens]
 
     def to_vega(self) -> Dict[str, Any]:
-        """
-        Build a Vega wordcloud.
-        """
+        font = "Roboto, Helvetica, sans-serif"
         return {
             "$schema": "https://vega.github.io/schema/vega/v5.json",
             "padding": 0,
@@ -131,9 +129,10 @@ class Chart:
                     "transform": [
                         {
                             "type": "wordcloud",
+                            "size": [{"signal": "width"}, {"signal": "height"}],
                             "text": {"field": "text"},
                             "fontSize": {"field": "n"},
-                            "font": "Nunito Sans, Helvetica Neue, Helvetica, Arial",
+                            "font": font,
                             "fontSizeRange": [10, 56],
                             "rotate": 0,
                         }
@@ -157,6 +156,7 @@ class Chart:
                             "align": {"value": "center"},
                             "baseline": {"value": "alphabetic"},
                             "fill": {"scale": "color", "field": "text"},
+                            "font": {"value": font},
                         },
                         "update": {
                             "x": {"field": "x"},

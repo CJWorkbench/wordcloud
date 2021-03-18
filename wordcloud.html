@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title>Word cloud</title>
-    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <style>
       html, body {
         box-sizing: border-box;
@@ -45,29 +45,17 @@
     <script>
       const loadingSpec = {
         "title": "loading",
-        "mark": "point",
-        "config": {
-          "style": {
-            "cell": {
-              "stroke": "transparent"
-            }
-          }
-        }
       }
 
       function errorSpec (message) {
         return {
           "title": message,
-          "mark": "point",
-          "config": {
-            "style": {
-              "cell": {
-                "stroke": "transparent"
-              }
-            }
-          }
         }
       }
+
+      const messageOrigin = new URL(document.location).searchParams.get('origin')
+      let dataUrl = new URL(document.location).searchParams.get('dataUrl')
+      let currentFetch = null
 
       const el = document.querySelector('#vega')
       let lastSpec = loadingSpec
@@ -132,20 +120,44 @@
       function startLoading () {
         renderData(loadingSpec)
 
-        const url = String(window.location).replace(/\/output.*/, '/embeddata')
-        fetch(url, { credentials: 'same-origin' })
+        const thisFetch = currentFetch = fetch(dataUrl, { credentials: 'same-origin' })
+
+        thisFetch
           .then(function(response) {
+            if (response.status === 404) {
+              return { error: 'no data' }
+            }
             if (!response.ok) {
               throw new Error('Invalid response code: ' + response.status)
             }
-
             return response.json()
           })
-          .then(renderData)
+          .then(data => {
+            if (thisFetch !== currentFetch) {
+              return // another fetch came after
+            }
+            renderData(data)
+          })
           .catch(console.error)
       }
 
-      window.addEventListener('hashchange', startLoading)
+      if (messageOrigin) {
+        function handleMessage (ev) {
+          if (ev.source !== window.parent || ev.origin !== messageOrigin) {
+            return
+          }
+
+          if (ev.data.type === 'set-data-url') {
+            if (dataUrl !== ev.data.dataUrl) {
+              dataUrl = ev.data.dataUrl
+              startLoading()
+            }
+          }
+        }
+        window.addEventListener('message', handleMessage)
+        window.parent.postMessage({ type: 'subscribe-to-data-url' }, messageOrigin)
+      }
+
       window.addEventListener('resize', onResize)
 
       startLoading()

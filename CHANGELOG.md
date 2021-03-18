@@ -1,3 +1,10 @@
+2020-03-18.01
+-------------
+
+* Viz: use Roboto, not Nunito Sans
+* Viz: prevent text from going out-of-bounds
+* (no user-visible change) Use Workbench's new `dataUrl` pattern
+
 2021-01-20.01
 -------------
 
